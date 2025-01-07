@@ -37,12 +37,15 @@ import { ref, computed, onMounted } from "vue";
 
 // Define the structure of the messages object
 type Messages = {
-  [lang: string]: {
-    title: string;
-    winMessage: string;
-    restart: string;
+    [lang: string]: {
+      title: string;
+      howToPlay: string;
+      winMessage: string;
+      restart: string;
+    };
   };
-};
+  
+
 
 export default {
   setup() {
