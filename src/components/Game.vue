@@ -1,5 +1,6 @@
 <template>
   <div class="game-container">
+
     <h1>{{ t("title") }}</h1>
     <div v-if="isGameWon" class="win-message">🎉 {{ t("winMessage") }} 🎉</div>
     <!-- Language toggle -->
@@ -13,6 +14,13 @@
         {{ lang.toUpperCase() }}
       </button>
     </div>
+
+
+    <!-- Mute toggle button -->
+    <button class="mute-toggle" @click="toggleMute">
+      {{ isMuted ? "🔇 Mute" : "🔊 Unmute" }}
+    </button>
+
 
     <div class="grid-container" :style="gridStyle">
       <div
@@ -34,6 +42,7 @@
 </template>
 <script lang="ts">
 import { ref, computed, onMounted } from "vue";
+import ConfettiExplosion from "vue-confetti-explosion";
 
 // Define the structure of the messages object
 type Messages = {
@@ -45,16 +54,49 @@ type Messages = {
     };
   };
   
-
+  const getGridSizeFromURL = (): number => {
+  const params = new URLSearchParams(window.location.search);
+  const size = parseInt(params.get("size") || "3", 10); // Default to 3 if size is not provided
+  return Math.min(Math.max(size, 3), 30); // Ensure size is between 3 and 10
+};
 
 export default {
+
+  
   setup() {
-    const gridSize = ref(3); // Default grid size (4x4)
+    const gridSize = ref(getGridSizeFromURL()); // Get grid size from URL or default to 3; // Default grid size (4x4)
     const totalTiles = computed(() => gridSize.value * gridSize.value); // Total tiles (gridSize²)
 
     // Reactive state for the tiles (1 to totalTiles - 1 + null for the empty space)
     const tiles = ref<(number | null)[]>([]);
     const language = ref(localStorage.getItem("language") || "en"); // Persist language in localStorage
+    const isMuted = ref(false); // Mute state
+
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    let audioBuffer: AudioBuffer | null = null;
+
+    // Preload the sound effect into an AudioBuffer
+    const loadSound = async () => {
+      const response = await fetch(
+        "/src/assets/audioblocks-realistic-whoosh-6-fight-kung-fu-ninja-fight-kung-fu-ninja_rt2gZXzUAPL_NWM.mp3"
+      );
+      const arrayBuffer = await response.arrayBuffer();
+      audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    };
+
+       // Play the preloaded sound
+  const playMoveSound = (): void => {
+    if (isMuted.value || !audioBuffer) return; // If the sound is not loaded yet, do nothing
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContext.destination);
+      source.start(0); 
+    };
+
+
+    const toggleMute = (): void => {
+      isMuted.value = !isMuted.value;
+    };
 
     // Translations for both languages
     // Translations for both languages
@@ -160,7 +202,9 @@ export default {
       const emptyIndex = tiles.value.indexOf(null); // Find the empty space
       if (checkAdjacency(index, emptyIndex)) {
         swapTiles(index, emptyIndex);
+        playMoveSound();
         triggerHapticFeedback(); // Add haptic feedback on valid move
+       // Reset playback time and play the sound
       }
     };
 
@@ -186,7 +230,10 @@ export default {
     }));
 
     // Initialize the grid on mount
-    onMounted(initializeGrid);
+    onMounted(() => {
+      initializeGrid();
+      loadSound(); // Preload the sound on mount
+    });
 
     return {
       gridSize,
@@ -199,6 +246,8 @@ export default {
       setLanguage,
       messages,
       language,
+      isMuted, // Expose mute state
+      toggleMute, // Expose mute toggle function
     };
   },
 };
@@ -241,7 +290,7 @@ h1 {
 
 /* Game container */
 .game-container {
-  max-width: 480px;
+  /* max-width: 480px; */
   padding: 1rem;
   text-align: center;
   background: #00000050;
@@ -259,6 +308,10 @@ h1 {
   font-size: 1.5rem;
   color: #28a745;
   margin-bottom: 20px;
+}
+
+.grid-container {
+  overflow: auto;
 }
 
 /* Grid items */
@@ -324,5 +377,21 @@ h1 {
   font-size: 0.75rem;
   line-height: normal;
   color: #cccccc;
+}
+
+.mute-toggle {
+  margin: 10px 0;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: #1a1a1a;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.mute-toggle:hover {
+  background-color: #1a1a1a50;
 }
 </style>

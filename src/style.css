@@ -23,7 +23,7 @@ body {
   min-height: 100vh;
   flex: 1;
   background: linear-gradient(to right, #283048, #859398);
-  overflow: hidden;
+  /* overflow: hidden; */
 
 
 }
