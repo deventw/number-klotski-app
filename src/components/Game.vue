@@ -42,8 +42,6 @@
 </template>
 <script lang="ts">
 import { ref, computed, onMounted } from "vue";
-import ConfettiExplosion from "vue-confetti-explosion";
-
 // Define the structure of the messages object
 type Messages = {
     [lang: string]: {
