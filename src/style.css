@@ -24,8 +24,6 @@ body {
   flex: 1;
   background: linear-gradient(to right, #283048, #859398);
   /* overflow: hidden; */
-
-
 }
 
 #app {
@@ -39,7 +37,6 @@ body {
   align-items: center;
   width: 100%;
   /* overflow: hidden; */
-
 }
 
 @media (prefers-color-scheme: light) {
