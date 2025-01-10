@@ -540,7 +540,7 @@ h1 {
 .bottom-menu-group-item {
   background-color: #e5e5e5;
   padding: 0.5rem;
-  aspect-ratio: 4/3;
+  aspect-ratio: 1;
   display: flex;
   justify-content: center;
   align-items: center;
