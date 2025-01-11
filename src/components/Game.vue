@@ -258,7 +258,7 @@ export default {
 </script>
 
 <template>
-  <div v-if="!isGameWon" class="win-effect">
+  <div v-if="isGameWon" class="win-effect">
     <ConfettiExplosion :particleCount="200" :force="0.3" />
   </div>
   <div v-confetti="{ particleCount: 200, force: 0.3 }" />
